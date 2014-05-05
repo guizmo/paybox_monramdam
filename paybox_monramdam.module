@@ -1,0 +1,97 @@
+<?php
+/**
+ *
+ * @author guillaume Bartolini @ monramdam
+ * 
+ * Main module file.
+ */
+
+
+/*
+function paybox_monramdam_user_insert(&$edit, $account, $category) {
+	//paybox_pay($cents, $order_id, $payer_email, $destination = '', $currency = 'euro', $payment_method = 'cb');
+	drupal_set_message('YEAH ! New user created');
+}
+*/
+
+
+function paybox_monramdam_form_user_register_form_alter(&$form, $form_state, $form_id) {
+
+	if( $form_id == 'user_register_form' && isset( $_GET['role'] ) ){
+		
+		$role = $_GET['role'];
+		
+		if( $role == 'organaute' ){
+			$form['#submit'][] = 'paybox_monramdam_user_register_submit';
+		}
+		
+	}
+}
+
+
+function paybox_monramdam_user_register_submit($form, &$form_state) {
+	
+	$uid = $form['#user']->uid;
+	$email = $form['#user']->mail;
+	$name = $form['#user']->name;
+	$amount = 20000;
+
+	
+
+	$query = paybox_pay($amount, $uid, $email, $destination = '', $currency = 'XPF', $payment_method = 'cb');
+	$form_state['redirect'] = $query;
+
+
+}
+
+//hook from paybox module API
+function paybox_monramdam_paybox_update_status($order_id, $success, $info){
+	
+	drupal_set_message($order_id . ' AND ' .$success);
+	
+	if($success == TRUE){
+		$uid = $order_id;
+		$user = user_load($uid);
+		
+		if($user->status == 0){
+			$user->status = 1;
+		    entity_save('user', $user);
+		    
+			$uid = $user->uid;
+			$email = $user->mail;
+			$name = $user->name;
+			$amount = 20000;
+			$date = new DateTime();
+			$dateCurent = $date->format('Y-m-d H:i:s');
+			$purchase_date = strtotime($dateCurent);
+
+
+			$fields = array(
+				'uid' => $uid,
+				'name' => $name,
+				'email' => $email,
+				'payment_status' => 1,
+				'purchase_date' => $purchase_date,
+				'amount' => $amount,
+				'last_update' => $purchase_date,
+			);
+			
+			$paybox_monramdam_insertDB = db_insert('paybox_monramdam')
+				->fields($fields)
+				->execute();
+
+
+   		}
+	}
+}
+
+function paybox_monramdam_paybox_failed($uid, $msg){
+
+	$old_msg = drupal_get_messages();
+	
+	drupal_set_message( $msg , 'warning');
+	drupal_set_message(t('Votre compte n\'a pas été créé.'), 'warning');
+	
+	user_delete($uid);
+}
+

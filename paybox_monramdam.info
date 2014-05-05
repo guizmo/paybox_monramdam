@@ -1,0 +1,4 @@
+name = Monramdam Paybox
+description = Monramdam Paybox module
+dependencies[] = paybox
+core = 7.x

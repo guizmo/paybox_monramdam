@@ -1,0 +1,75 @@
+<?php
+
+/**
+ * Implements hook_install().
+ */
+function paybox_monramdam_install(){
+	drupal_set_message('paybox_monramdam_install');
+	variable_set('paybox_mode', 0);
+	drupal_set_message('paybox_mode = ' . variable_get('paybox_mode')); 
+}
+
+
+
+function paybox_monramdam_schema() {
+  $schema = array();
+  $schema['paybox_monramdam'] = array(
+    'description' => 'Records users payments',
+    'fields' => array(
+      'uid' => array(
+        'description' => 'User ID',
+        'type' => 'int',
+        'not null' => TRUE,
+        'unsigned' => TRUE,
+      ),
+      'name' => array(
+        'description' => 'User name',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'email' => array(
+        'description' => 'User email',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'payment_status' => array(
+        'description' => 'Payment status',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'purchase_date' => array(
+        'description' => 'Time of the last purchase',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'amount' => array(
+        'description' => 'Amount',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'last_update' => array(
+        'description' => 'Timestamp',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+    ),
+    'primary key' => array('uid'),
+    'indexes' => array(
+      'last_update' => array('last_update'),
+      'name' => array('name'),
+    ),
+    'unique keys' => array(
+      'uid_name' => array('uid', 'name'),
+    ),
+  );
+
+  return $schema;
+}
