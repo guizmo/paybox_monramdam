@@ -47,7 +47,6 @@ function paybox_monramdam_user_register_submit($form, &$form_state) {
 //hook from paybox module API
 function paybox_monramdam_paybox_update_status($order_id, $success, $info){
 	
-	drupal_set_message($order_id . ' AND ' .$success);
 	
 	if($success == TRUE){
 		$uid = $order_id;
